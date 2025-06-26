@@ -7,56 +7,50 @@ Sistem kontrol fullstack yang menggunakan **Next.js sebagai orchestrator** untuk
 ```mermaid
 graph TB
     subgraph "Frontend Layer"
-        UI[Frontend Dashboard<br/>Next.js App]
+        UI[Frontend Dashboard Next.js App]
     end
 
     subgraph "Orchestrator Layer"
-        NextJS[Next.js API<br/>Orchestrator]
-        API_CMD[/api/command]
-        API_EVENTS[/api/events]
-        API_RAG[/api/rag/health]
+        NextJS[Next.js API Orchestrator]
+        API_CMD[API Command]
+        API_EVENTS[API Events]
+        API_RAG[API RAG Health]
     end
 
     subgraph "Backend Services"
-        Express[Express Event Gateway<br/>Discord Bot]
-        RAG[RAG Service<br/>AI/ML Backend]
-        Kafka[Kafka Topics<br/>Event Stream]
-        Redis[Redis<br/>State Management]
+        Express[Express Event Gateway Discord Bot]
+        RAG[RAG Service AI ML Backend]
+        Kafka[Kafka Topics Event Stream]
+        Redis[Redis State Management]
     end
 
     subgraph "External Sources"
         Discord[Discord Platform]
-        KB[Knowledge Base<br/>Documents]
+        KB[Knowledge Base Documents]
     end
 
-    %% Frontend to Orchestrator
     UI --> API_CMD
     UI --> API_EVENTS
     UI --> API_RAG
 
-    %% Orchestrator internal
     NextJS --> API_CMD
     NextJS --> API_EVENTS
     NextJS --> API_RAG
 
-    %% Orchestrator to Backend
     API_CMD --> Express
     API_CMD --> RAG
     NextJS --> Kafka
     NextJS --> Redis
 
-    %% Backend connections
     Express --> Discord
     Express --> Kafka
     Express --> Redis
     RAG --> KB
 
-    %% Event flow
     Discord --> Express
     Express --> Kafka
     Kafka --> NextJS
 
-    %% Styling
     classDef frontend fill:#e1f5fe
     classDef orchestrator fill:#f3e5f5
     classDef backend fill:#e8f5e8
@@ -138,21 +132,21 @@ graph LR
 ```mermaid
 graph TD
     subgraph "Next.js API Routes"
-        A1[GET /api/events<br/>Fetch Events]
-        A2[POST /api/events<br/>Get Statistics]
-        A3[POST /api/command<br/>Send Command]
-        A4[GET /api/rag/health<br/>Health Check]
+        A1[GET API Events Fetch Events]
+        A2[POST API Events Get Statistics]
+        A3[POST API Command Send Command]
+        A4[GET API RAG Health Check]
     end
 
     subgraph "Event Gateway Routes"
-        B1[POST /command/send-message<br/>Discord Command]
-        B2[POST /webhook/discord<br/>Discord Webhook]
-        B3[GET /<br/>Health Check]
+        B1[POST Command Send Message Discord Command]
+        B2[POST Webhook Discord Discord Webhook]
+        B3[GET Health Check]
     end
 
     subgraph "RAG Service"
-        C1[POST /rag<br/>Query Processing]
-        C2[GET /health<br/>Service Health]
+        C1[POST RAG Query Processing]
+        C2[GET Health Service Health]
     end
 
     A3 --> B1
