@@ -42,3 +42,6 @@ client.on("messageCreate", async (message: Message) => {
     await message.reply("Pesanmu sudah diterima!");
   }
 });
+
+// Login bot Discord
+client.login(process.env.DISCORD_TOKEN);
