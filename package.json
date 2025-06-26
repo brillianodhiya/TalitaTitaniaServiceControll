@@ -3,25 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "npm-run-all --parallel next:dev bot:dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "npm-run-all --parallel next:start bot:start",
+    "lint": "next lint",
+    "next:dev": "next dev --turbopack",
+    "next:start": "next start",
+    "bot:dev": "cd event-gateway && bun run dev:bun",
+    "bot:start": "cd event-gateway && bun run build && bun start"
   },
   "dependencies": {
+    "axios": "^1.10.0",
+    "discord.js": "^14.14.1",
+    "ioredis": "^5.6.1",
+    "kafkajs": "^2.2.4",
+    "next": "15.3.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
-    "@eslint/eslintrc": "^3"
+    "npm-run-all": "^4.1.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
