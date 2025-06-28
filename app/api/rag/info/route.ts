@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
-import { ragService } from "../../../lib/rag-service";
 
 export async function GET() {
   try {
-    const serviceInfo = await ragService.getServiceInfo();
+    // Forward info request to RAG service
+    const response = await fetch("http://localhost:3001/rag/info");
+    const data = await response.json();
 
     return NextResponse.json({
-      ...serviceInfo,
+      ...data,
       timestamp: new Date().toISOString(),
       config: {
-        endpoint: process.env.RAG_ENDPOINT || "simulated",
+        endpoint: process.env.RAG_ENDPOINT || "http://localhost:3001",
         hasApiKey: !!process.env.RAG_API_KEY,
       },
     });
@@ -20,6 +21,7 @@ export async function GET() {
         status: "error",
         error: String(error),
         timestamp: new Date().toISOString(),
+        endpoint: process.env.RAG_ENDPOINT || "http://localhost:3001",
       },
       { status: 500 }
     );

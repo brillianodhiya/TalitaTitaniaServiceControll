@@ -1,496 +1,498 @@
-# Talita Titania Control System
+# 🧠 AI VTuber Control System
 
-Sistem kontrol fullstack yang menggunakan **Next.js sebagai orchestrator** untuk mengintegrasikan Discord bot, RAG (Retrieval-Augmented Generation), dan frontend dashboard.
+**Autonomous AI VTuber dengan Real-time Decision Making**
 
-## 🏗️ Arsitektur
+Sistem kontrol VTuber AI yang benar-benar autonomous - AI sendiri yang memutuskan setiap aksi, emosi, dan gerakan berdasarkan events yang diterima dari berbagai platform.
 
-```mermaid
-graph TB
-    subgraph "Frontend Layer"
-        UI[Frontend Dashboard Next.js App]
-    end
+## 🎯 **Konsep Utama**
 
-    subgraph "Orchestrator Layer"
-        NextJS[Next.js API Orchestrator]
-        API_CMD[API Command]
-        API_EVENTS[API Events]
-        API_RAG[API RAG Health]
-    end
+### **AI VTuber Autonomous**
 
-    subgraph "Backend Services"
-        Express[Express Event Gateway Discord Bot]
-        RAG[RAG Service AI ML Backend]
-        Kafka[Kafka Topics Event Stream]
-        Redis[Redis State Management]
-    end
+- **AI sebagai "Otak"**: RAG Service bertindak sebagai otak yang memproses semua events
+- **Keputusan Autonomous**: AI sendiri yang menentukan emosi, aksi, dan respons
+- **Personality Building**: AI membangun dan mengembangkan personality secara dinamis
+- **Learning & Memory**: AI belajar dari setiap interaksi dan menyimpan memori
 
-    subgraph "External Sources"
-        Discord[Discord Platform]
-        KB[Knowledge Base Documents]
-    end
-
-    UI --> API_CMD
-    UI --> API_EVENTS
-    UI --> API_RAG
-
-    NextJS --> API_CMD
-    NextJS --> API_EVENTS
-    NextJS --> API_RAG
-
-    API_CMD --> Express
-    API_CMD --> RAG
-    NextJS --> Kafka
-    NextJS --> Redis
-
-    Express --> Discord
-    Express --> Kafka
-    Express --> Redis
-    RAG --> KB
-
-    Discord --> Express
-    Express --> Kafka
-    Kafka --> NextJS
-
-    classDef frontend fill:#e1f5fe
-    classDef orchestrator fill:#f3e5f5
-    classDef backend fill:#e8f5e8
-    classDef external fill:#fff3e0
-
-    class UI frontend
-    class NextJS,API_CMD,API_EVENTS,API_RAG orchestrator
-    class Express,RAG,Kafka,Redis backend
-    class Discord,KB external
-```
-
-## 🔄 Flow Data
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant F as Frontend
-    participant N as Next.js API
-    participant E as Express Gateway
-    participant R as RAG Service
-    participant D as Discord
-    participant K as Kafka
-
-    Note over U,K: Command Flow
-    U->>F: Fill command form
-    F->>N: POST /api/command
-    N->>E: Send command to Express
-    E->>D: Send message to Discord
-    D-->>E: Discord response
-    E-->>N: Express response
-    N->>R: Send query to RAG
-    R-->>N: RAG response
-    N-->>F: Combined response
-    F-->>U: Display results
-
-    Note over U,K: Event Flow
-    D->>E: Discord message
-    E->>K: Publish to Kafka
-    K->>N: Consume events
-    N->>F: Update dashboard
-    F-->>U: Real-time updates
-```
-
-## 📊 System Components
-
-```mermaid
-graph LR
-    subgraph "Data Flow"
-        A[User Input] --> B[Command Processing]
-        B --> C[Express Response]
-        B --> D[RAG Response]
-        C --> E[Response Aggregation]
-        D --> E
-        E --> F[Frontend Display]
-    end
-
-    subgraph "Event Processing"
-        G[Discord Events] --> H[Kafka Topics]
-        H --> I[Event Consumer]
-        I --> J[Event Processing]
-        J --> K[Dashboard Updates]
-    end
-
-    subgraph "State Management"
-        L[Redis Cache] --> M[High Priority State]
-        L --> N[Low Priority State]
-        M --> O[Adaptive Sampling]
-        N --> O
-    end
-
-    style A fill:#ffeb3b
-    style F fill:#4caf50
-    style K fill:#2196f3
-    style O fill:#ff9800
-```
-
-## 🔧 API Architecture
-
-```mermaid
-graph TD
-    subgraph "Next.js API Routes"
-        A1[GET API Events Fetch Events]
-        A2[POST API Events Get Statistics]
-        A3[POST API Command Send Command]
-        A4[GET API RAG Health Check]
-    end
-
-    subgraph "Event Gateway Routes"
-        B1[POST Command Send Message Discord Command]
-        B2[POST Webhook Discord Discord Webhook]
-        B3[GET Health Check]
-    end
-
-    subgraph "RAG Service"
-        C1[POST RAG Query Processing]
-        C2[GET Health Service Health]
-    end
-
-    A3 --> B1
-    A3 --> C1
-    A4 --> C2
-
-    style A1 fill:#e3f2fd
-    style A3 fill:#f3e5f5
-    style B1 fill:#e8f5e8
-    style C1 fill:#fff3e0
-```
-
-## 📁 Struktur Project
+### **Flow Arsitektur**
 
 ```
-talita-titania-controll/
-├── app/                          # Next.js App Router
-│   ├── api/
-│   │   ├── command/              # Command API (Express + RAG)
-│   │   ├── events/               # Events API (Kafka events)
-│   │   └── rag/health/           # RAG Health Check
-│   ├── lib/
-│   │   ├── kafka-consumer.ts     # Kafka consumer & Express client
-│   │   ├── rag-service.ts        # RAG service integration
-│   │   └── worker.ts             # Background worker
-│   └── page.tsx                  # Frontend dashboard
-├── event-gateway/                # Express.js + Discord Bot
-│   ├── src/
-│   │   ├── bot.ts               # Discord bot
-│   │   ├── server.ts            # Express server
-│   │   ├── routes/              # API routes
-│   │   ├── pipelines/           # Kafka producer
-│   │   └── sources/             # Event sources
-│   └── package.json
-└── kafka-setup/                  # Docker Compose untuk Kafka
+Events → Event Gateway → Kafka → RAG Service → AI Decision → VTuber Actions
 ```
 
-## 🚀 Quick Start
+## 🏗️ **Arsitektur Sistem**
 
-### 1. Setup Environment Variables
+### **1. Event Gateway (Express.js + Discord Bot)**
+
+- **Fungsi**: Mengumpulkan events dari berbagai sumber
+- **Sources**: Discord, YouTube, Twitch, WhatsApp, Webhook
+- **Output**: Mengirim events ke Kafka dengan prioritas
+
+### **2. Kafka Message Broker**
+
+- **Topics**:
+  - `webhook.events.high_priority` - Events penting (donation, subscription, raid)
+  - `webhook.events.low_priority` - Events biasa (chat, like, comment)
+- **Fungsi**: Streaming events ke semua komponen
+
+### **3. RAG Service (AI Brain)**
+
+- **Fungsi Utama**:
+  - Memproses semua events untuk AI decision making
+  - Membangun personality dan memori AI
+  - Menghasilkan keputusan autonomous
+- **AI Features**:
+  - Personality Context Management
+  - Emotional State Tracking
+  - Memory Formation & Retrieval
+  - Learning & Adaptation
+  - Decision Confidence Scoring
+
+### **4. Next.js Dashboard**
+
+- **Fungsi**:
+  - Real-time monitoring events dan AI decisions
+  - Manual VTuber command control
+  - System status monitoring
+- **Features**:
+  - Live events stream
+  - AI decision visualization
+  - VTuber command interface
+  - Personality context display
+
+### **5. VTuber Engine (Future)**
+
+- **Fungsi**: Eksekusi aksi VTuber berdasarkan AI decisions
+- **Components**:
+  - Animation Engine
+  - TTS (Text-to-Speech)
+  - Expression System
+  - Gesture Control
+
+## 🧠 **AI Autonomous Decision System**
+
+### **AI Decision Types**
+
+```typescript
+type AIDecisionType =
+  | "reaction_to_chat" // React to chat message
+  | "reaction_to_donation" // React to donation
+  | "reaction_to_follow" // React to new follower
+  | "reaction_to_subscription" // React to subscription
+  | "reaction_to_raid" // React to raid
+  | "spontaneous_action" // Spontaneous action (AI initiative)
+  | "mood_change" // Change mood based on events
+  | "personality_development" // Develop personality
+  | "conversation_response" // Respond in conversation
+  | "stream_management" // Manage stream flow
+  | "audience_interaction" // Interact with audience
+  | "content_creation" // Create content ideas
+  | "self_reflection" // AI reflecting on itself
+  | "learning_adaptation" // Learn and adapt behavior
+  | "emergency_response" // Emergency situations
+  | "routine_action" // Routine behaviors
+  | "social_interaction" // Social behaviors
+  | "emotional_expression" // Express emotions
+  | "cognitive_processing" // Process information
+  | "memory_formation" // Form memories
+  | "knowledge_integration" // Integrate new knowledge
+  | "behavior_adjustment"; // Adjust behavior patterns
+```
+
+### **AI VTuber Actions**
+
+AI dapat memilih dari berbagai aksi:
+
+#### **Physical Actions**
+
+- `move_forward`, `move_backward`, `jump`, `sit`, `stand`, `walk`, `run`, `dance`
+- `wave`, `clap`, `point`, `nod`, `shake_head`, `bow`, `salute`, `spin`, `bounce`
+
+#### **Emotional Expressions**
+
+- `smile`, `frown`, `laugh`, `cry`, `wink`, `blush`, `surprised`, `angry`
+- `confused`, `excited`, `sad`, `nervous`, `calm`, `playful`, `serious`
+
+#### **Communication**
+
+- `speak`, `sing`, `whisper`, `shout`, `greet`, `farewell`, `thank`, `apologize`
+- `congratulate`, `comfort`, `joke`, `story`, `question`, `answer`, `explain`
+
+#### **Interactive**
+
+- `look_at_user`, `point_at_user`, `wave_at_user`, `react_to_message`
+- `read_message`, `respond_to_user`, `thank_donor`, `welcome_follower`
+
+#### **Cognitive Actions**
+
+- `think`, `remember`, `learn`, `analyze`, `decide`, `plan`, `reflect`
+- `imagine`, `dream`, `wonder`, `realize`, `understand`, `discover`
+
+#### **Autonomous Actions**
+
+- `explore`, `experiment`, `try_new_thing`, `take_break`, `self_care`
+- `exercise`, `eat`, `sleep`, `wake_up`, `check_schedule`, `plan_day`
+
+### **AI Personality Context**
+
+```typescript
+interface PersonalityContext {
+  currentMood: VTuberEmotion;
+  energyLevel: number; // 0-10
+  socialEnergy: number; // 0-10
+  focusLevel: number; // 0-10
+  stressLevel: number; // 0-10
+  excitementLevel: number; // 0-10
+  recentEvents: string[]; // Last 10 events
+  currentActivity: string;
+  audienceEngagement: "low" | "medium" | "high";
+  timeOfDay: "morning" | "afternoon" | "evening" | "night";
+  dayOfWeek: string;
+  streamDuration: number; // in minutes
+  viewerCount: number;
+  chatActivity: "low" | "medium" | "high";
+  personalityTraits: string[];
+  currentGoals: string[];
+  recentMemories: string[];
+  learnedBehaviors: string[];
+  emotionalState: {
+    happiness: number;
+    excitement: number;
+    calmness: number;
+    anxiety: number;
+    confidence: number;
+    curiosity: number;
+  };
+}
+```
+
+### **AI Learning & Memory**
+
+- **Short-term Memory**: Events terbaru dan konteks
+- **Long-term Memory**: Pengalaman penting dan pembelajaran
+- **Emotional Memory**: Memori yang terkait dengan emosi
+- **Procedural Memory**: Pola perilaku yang dipelajari
+
+## 🚀 **Setup & Installation**
+
+### **Prerequisites**
+
+- Node.js 18+
+- Bun (for event-gateway)
+- Docker & Docker Compose
+- Kafka & Redis
+
+### **1. Clone Repository**
 
 ```bash
-# .env.local (Next.js)
+git clone <repository-url>
+cd talita-titania-controll
+```
+
+### **2. Setup Kafka & Redis**
+
+```bash
+cd kafka-setup
+docker-compose up -d
+```
+
+### **3. Install Dependencies**
+
+```bash
+# Root project (Next.js)
+npm install
+
+# Event Gateway
+cd event-gateway
+bun install
+```
+
+### **4. Environment Variables**
+
+```bash
+# .env (root)
 KAFKA_BROKER=localhost:9092
 REDIS_URL=redis://localhost:6379
-RAG_ENDPOINT=http://localhost:8000/rag  # Optional, default: simulated
-RAG_API_KEY=your_rag_api_key           # Optional
+RAG_ENDPOINT=http://localhost:8000/rag
 
 # event-gateway/.env
 DISCORD_TOKEN=your_discord_token
-DISCORD_CLIENT_ID=your_client_id
+DISCORD_CLIENT_ID=your_discord_client_id
 KAFKA_BROKER=localhost:9092
 REDIS_URL=redis://localhost:6379
 ```
 
-### 2. Start Services
+### **5. Start Development**
 
 ```bash
-# Start Kafka & Redis
-cd kafka-setup
-docker-compose up -d
-
-# Start Event Gateway (Discord Bot + Express)
-cd event-gateway
-bun install
-bun run dev
-
-# Start Next.js App
-npm install
+# Start all services
 npm run dev
+
+# Or start individually
+npm run next:dev      # Next.js dashboard
+npm run bot:dev       # Event Gateway
+npm run dev:worker    # Kafka consumer worker
 ```
 
-### 3. Access Dashboard
+## 📡 **API Endpoints**
 
-- **Frontend**: http://localhost:3000
-- **Event Gateway API**: http://localhost:3001
-- **RAG Health Check**: http://localhost:3000/api/rag/health
+### **Events API**
 
-## 🔧 API Endpoints
+```typescript
+// GET /api/events
+// Retrieve events with filters
+GET /api/events?limit=20&source=discord&priority=high
 
-### Next.js API Routes
+// POST /api/events
+// Store new event
+POST /api/events
+Body: Event
+```
 
-#### POST `/api/command`
+### **AI VTuber Decisions API**
 
-Mengirim command ke Express dan RAG, menerima response dari keduanya.
+```typescript
+// GET /api/ai-vtuber/decision
+// Retrieve AI decisions
+GET /api/ai-vtuber/decision?limit=20&decisionType=reaction_to_chat
 
-```json
-{
-  "userId": "user123",
-  "message": "Hello bot!",
-  "query": "What is the weather today?"
+// POST /api/ai-vtuber/decision
+// Process AI decision
+POST /api/ai-vtuber/decision
+Body: AIVTuberDecision
+```
+
+### **VTuber Commands API**
+
+```typescript
+// GET /api/vtuber/command
+// Retrieve VTuber commands
+GET /api/vtuber/command?limit=20
+
+// POST /api/vtuber/command
+// Send VTuber command
+POST /api/vtuber/command
+Body: VTuberCommand
+```
+
+### **RAG Service API**
+
+```typescript
+// GET /api/rag/health
+// Health check
+GET / api / rag / health;
+
+// GET /api/rag/info
+// Service information
+GET / api / rag / info;
+
+// POST /api/rag/query
+// Query RAG service
+POST / api / rag / query;
+Body: RAGRequest;
+```
+
+## 🎭 **Event Types**
+
+### **Discord Events**
+
+```typescript
+interface DiscordEvent extends Event {
+  source: "discord";
+  discord: {
+    username: string;
+    content: string;
+    channelId: string;
+    messageId: string;
+    isBot: boolean;
+    attachments: string[];
+  };
 }
 ```
 
-Response:
+### **YouTube Events**
 
-```json
+```typescript
+interface YouTubeEvent extends Event {
+  source: "youtube";
+  youtube: {
+    channelName: string;
+    videoTitle?: string;
+    commentText?: string;
+    commentAuthor?: string;
+    likeCount?: number;
+    subscriberCount?: number;
+  };
+}
+```
+
+### **WhatsApp Events**
+
+```typescript
+interface WhatsAppEvent extends Event {
+  source: "whatsapp";
+  whatsapp: {
+    contactName: string;
+    phoneNumber: string;
+    content: string;
+    messageType: "text" | "image" | "video" | "audio";
+    timestamp: string;
+  };
+}
+```
+
+### **Webhook Events**
+
+```typescript
+interface WebhookEvent extends Event {
+  source: "webhook";
+  webhook: {
+    sourceSystem: string;
+    body: Record<string, unknown>;
+    headers: Record<string, string>;
+    method: string;
+    url: string;
+  };
+}
+```
+
+## 🧠 **AI Decision Process**
+
+### **1. Event Processing**
+
+```typescript
+// Event diterima dari Kafka
+const event: Event = {
+  id: "event_123",
+  source: "discord",
+  type: "chat_message",
+  priority: "normal",
+  timestamp: "2024-01-01T12:00:00Z",
+  // ... event data
+};
+```
+
+### **2. AI Decision Generation**
+
+```typescript
+// RAG Service memproses event
+const aiDecision: AIVTuberDecision = await ragService.processEvent(event);
+
+// AI menghasilkan keputusan
 {
-  "success": true,
-  "expressResponse": {
-    /* Discord bot response */
-  },
-  "ragResponse": {
-    "answer": "RAG generated answer...",
-    "sources": ["doc1.pdf", "doc2.txt"],
-    "confidence": 0.85,
-    "metadata": {
-      "processingTime": 1200,
-      "model": "gpt-4",
-      "tokens": 1500
+  id: "decision_456",
+  decisionType: "reaction_to_chat",
+  confidence: 0.85,
+  reasoning: "User sent a friendly message, AI should respond positively",
+  actions: [
+    {
+      actionType: "speak",
+      speech: {
+        text: "Thanks for the message! I'm happy to chat with you!",
+        emotion: "happy",
+        tone: "friendly"
+      },
+      animation: {
+        name: "wave",
+        emotion: "happy",
+        duration: 2.0
+      },
+      expression: {
+        emotion: "happy",
+        intensity: 7
+      }
     }
-  },
-  "timestamp": "2024-01-01T12:00:00.000Z"
+  ],
+  emotion: "happy",
+  personalityContext: { /* current AI state */ }
 }
 ```
 
-#### GET `/api/events`
+### **3. VTuber Execution**
 
-Mendapatkan events dari Kafka consumer.
+```typescript
+// AI decision dikirim ke VTuber engine
+await simulateVTuberExecution(aiDecision);
 
-#### POST `/api/events`
-
-Mendapatkan statistik events.
-
-#### GET `/api/rag/health`
-
-Health check untuk RAG service.
-
-### Event Gateway API Routes
-
-#### POST `/command/send-message`
-
-Mengirim pesan ke Discord user.
-
-```json
-{
-  "userId": "user123",
-  "message": "Hello from Next.js!"
-}
+// VTuber mengeksekusi aksi
+🎬 Executing action: speak
+🗣️  Speech: "Thanks for the message! I'm happy to chat with you!" (happy)
+🎭 Animation: wave (2.0s)
+😊 Expression: happy (intensity: 7)
 ```
 
-## 🤖 RAG Integration
+## 🔄 **Real-time Flow**
 
-Sistem mendukung integrasi dengan berbagai RAG backend menggunakan **axios** untuk HTTP requests:
+### **High Priority Events**
 
-### Simulated RAG (Default)
+1. **Event Received** → Discord donation, subscription, raid
+2. **Kafka High Priority** → `webhook.events.high_priority`
+3. **AI Processing** → RAG service generates decision immediately
+4. **VTuber Action** → AI executes actions with high confidence
+5. **Memory Storage** → Event and decision stored in AI memory
 
-Jika `RAG_ENDPOINT` tidak dikonfigurasi, sistem akan menggunakan simulasi RAG untuk development/testing.
+### **Low Priority Events**
 
-### Real RAG Service
+1. **Event Received** → Chat message, like, comment
+2. **Kafka Low Priority** → `webhook.events.low_priority`
+3. **Buffered Processing** → Processed when no high priority events
+4. **AI Decision** → RAG service generates appropriate response
+5. **VTuber Action** → AI executes actions based on personality
 
-Untuk menggunakan RAG service yang sudah dibuat terpisah:
+## 🎯 **Next Steps**
 
-```bash
-# Set environment variables
-RAG_ENDPOINT=http://your-rag-service.com/api
-RAG_API_KEY=your_api_key  # Optional, untuk authentication
-```
+### **Phase 1: Core AI System** ✅
 
-### RAG Service API Requirements
+- [x] Event Gateway dengan Discord integration
+- [x] Kafka streaming system
+- [x] RAG Service dengan AI decision making
+- [x] Next.js dashboard dengan real-time monitoring
+- [x] AI autonomous decision system
+- [x] Personality context management
 
-RAG service Anda harus menyediakan endpoint berikut:
+### **Phase 2: VTuber Engine** 🚧
 
-#### 1. POST `/query` - Query Processing
+- [ ] VTuber animation engine
+- [ ] TTS (Text-to-Speech) integration
+- [ ] Expression system
+- [ ] Gesture control
+- [ ] Real-time rendering
 
-**Request:**
+### **Phase 3: Advanced AI Features** 📋
 
-```json
-{
-  "query": "user query",
-  "context": {
-    "userId": "user123",
-    "message": "original message",
-    "expressResponse": {
-      /* Discord response */
-    },
-    "timestamp": "2024-01-01T12:00:00.000Z"
-  }
-}
-```
+- [ ] Advanced personality development
+- [ ] Long-term memory system
+- [ ] Emotional intelligence
+- [ ] Context awareness
+- [ ] Multi-language support
 
-**Response:**
+### **Phase 4: Platform Integration** 📋
 
-```json
-{
-  "answer": "Generated answer from your RAG service",
-  "sources": ["doc1.pdf", "doc2.txt"],
-  "confidence": 0.85,
-  "metadata": {
-    "model": "your-model-name",
-    "tokens": 1500
-  }
-}
-```
+- [ ] YouTube Live integration
+- [ ] Twitch integration
+- [ ] TikTok Live integration
+- [ ] Instagram Live integration
+- [ ] Custom webhook support
 
-#### 2. GET `/health` - Health Check
+### **Phase 5: Production Features** 📋
 
-**Response:**
+- [ ] Database integration (PostgreSQL/MongoDB)
+- [ ] User authentication & management
+- [ ] Analytics & insights
+- [ ] Performance monitoring
+- [ ] Scalability improvements
 
-```json
-{
-  "status": "healthy",
-  "service": "your-rag-service"
-}
-```
-
-#### 3. GET `/info` - Service Information
-
-**Response:**
-
-```json
-{
-  "service": "your-rag-service",
-  "version": "1.0.0",
-  "status": "healthy",
-  "endpoint": "http://your-rag-service.com/api"
-}
-```
-
-### Configuration Examples
-
-#### Local Development
-
-```bash
-# .env.local
-RAG_ENDPOINT=http://localhost:8000/api
-```
-
-#### Production
-
-```bash
-# .env.local
-RAG_ENDPOINT=https://your-rag-service.com/api
-RAG_API_KEY=your_production_api_key
-```
-
-#### With Authentication
-
-```bash
-# .env.local
-RAG_ENDPOINT=https://your-rag-service.com/api
-RAG_API_KEY=Bearer your_jwt_token
-```
-
-### Error Handling
-
-Sistem memiliki built-in error handling:
-
-1. **Timeout**: 30 detik default (configurable)
-2. **Fallback**: Otomatis ke simulasi jika RAG service down
-3. **Retry**: Tidak ada retry otomatis (bisa ditambahkan jika diperlukan)
-4. **Logging**: Error details di console untuk debugging
-
-### Monitoring
-
-Sistem menyediakan endpoint untuk monitoring RAG service:
-
-- **Health Check**: `GET /api/rag/health`
-- **Service Info**: `GET /api/rag/info`
-- **Real-time Status**: Di dashboard frontend
-
-## 📊 Dashboard Features
-
-- **Real-time Events**: Menampilkan events dari Kafka dengan auto-refresh
-- **Command Interface**: Form untuk mengirim command ke Express dan RAG
-- **Response Display**: Menampilkan response dari Express dan RAG
-- **Statistics**: Statistik events berdasarkan source dan priority
-- **Health Monitoring**: Status kesehatan RAG service
-
-## 🔄 Event Flow
-
-1. **Discord Message** → Event Gateway
-2. **Event Gateway** → Kafka Topics (high/low priority)
-3. **Kafka Consumer** → Next.js Processing
-4. **Frontend Command** → Next.js API
-5. **Next.js API** → Express + RAG
-6. **Response** → Frontend Display
-
-## 🛠️ Development
-
-### Adding New Commands
-
-1. Tambahkan route di `event-gateway/src/routes/commands/`
-2. Update `sendCommandToExpress` di `app/lib/kafka-consumer.ts`
-3. Update frontend form di `app/page.tsx`
-
-### Adding New RAG Features
-
-1. Update `RAGRequest` interface di `app/lib/rag-service.ts`
-2. Modify `sendToRAG` method sesuai kebutuhan
-3. Update frontend untuk menampilkan data baru
-
-### Adding New Event Sources
-
-1. Buat source baru di `event-gateway/src/sources/`
-2. Update Kafka producer untuk topic baru
-3. Tambahkan consumer di `app/lib/kafka-consumer.ts`
-
-## 📝 Environment Variables
-
-### Next.js (.env.local)
-
-- `KAFKA_BROKER`: Kafka broker address
-- `REDIS_URL`: Redis connection URL
-- `RAG_ENDPOINT`: RAG service endpoint (optional)
-- `RAG_API_KEY`: RAG service API key (optional)
-
-### Event Gateway (.env)
-
-- `DISCORD_TOKEN`: Discord bot token
-- `DISCORD_CLIENT_ID`: Discord client ID
-- `KAFKA_BROKER`: Kafka broker address
-- `REDIS_URL`: Redis connection URL
-- `PORT`: Express server port (default: 3001)
-
-## 🚀 Deployment
-
-### Production Setup
-
-1. **Environment Variables**: Set semua environment variables
-2. **RAG Service**: Deploy RAG service terpisah
-3. **Kafka**: Setup Kafka cluster production
-4. **Redis**: Setup Redis cluster production
-5. **Build**: `npm run build && npm start`
-
-### Docker Deployment
-
-```bash
-# Build images
-docker build -t talita-titania-frontend .
-docker build -t talita-titania-gateway ./event-gateway
-
-# Run with docker-compose
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-## 🤝 Contributing
+## 🤝 **Contributing**
 
 1. Fork repository
 2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Create Pull Request
+3. Make changes
+4. Test thoroughly
+5. Submit pull request
 
-## 📄 License
+## 📄 **License**
 
-MIT License - see LICENSE file for details.
+MIT License - see LICENSE file for details
+
+---
+
+**🧠 AI VTuber Control System** - Membuat VTuber yang benar-benar autonomous dengan AI decision making yang canggih!

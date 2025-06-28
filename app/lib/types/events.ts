@@ -6,6 +6,13 @@ export interface BaseEvent {
   priority: EventPriority;
   messageKey: string;
   processedAt?: string;
+  // Enhanced for AI VTuber
+  eventType: VTuberEventType;
+  emotion?: VTuberEmotion;
+  intensity?: number; // 0-10 scale
+  context?: VTuberContext;
+  requiresResponse?: boolean;
+  responseType?: VTuberResponseType;
 }
 
 // Event sources
@@ -15,10 +22,124 @@ export type EventSource =
   | "whatsapp"
   | "webhook"
   | "telegram"
-  | "slack";
+  | "slack"
+  | "twitch"
+  | "tiktok"
+  | "instagram"
+  | "twitter";
 
 // Event priorities
 export type EventPriority = "high" | "low" | "critical" | "normal";
+
+// VTuber-specific event types
+export type VTuberEventType =
+  // Chat interactions
+  | "chat_message"
+  | "chat_reaction"
+  | "chat_mention"
+  | "chat_command"
+  | "chat_question"
+  | "chat_compliment"
+  | "chat_insult"
+  | "chat_question"
+  | "chat_greeting"
+  | "chat_farewell"
+
+  // Stream events
+  | "stream_start"
+  | "stream_end"
+  | "stream_pause"
+  | "stream_resume"
+  | "viewer_count_change"
+  | "peak_viewers"
+
+  // Engagement events
+  | "donation"
+  | "subscription"
+  | "follow"
+  | "like"
+  | "share"
+  | "comment"
+  | "super_chat"
+  | "bits"
+  | "raid"
+  | "host"
+
+  // Content events
+  | "video_upload"
+  | "video_like"
+  | "video_comment"
+  | "video_share"
+  | "post_creation"
+  | "post_interaction"
+
+  // System events
+  | "system_notification"
+  | "error_occurred"
+  | "maintenance"
+  | "update_available"
+
+  // Custom events
+  | "custom_interaction"
+  | "scheduled_event"
+  | "reminder"
+  | "achievement";
+
+// VTuber emotions for AI processing
+export type VTuberEmotion =
+  | "happy"
+  | "excited"
+  | "surprised"
+  | "confused"
+  | "sad"
+  | "angry"
+  | "nervous"
+  | "calm"
+  | "playful"
+  | "serious"
+  | "embarrassed"
+  | "proud"
+  | "curious"
+  | "worried"
+  | "grateful"
+  | "neutral";
+
+// VTuber response types
+export type VTuberResponseType =
+  | "verbal_response"
+  | "gesture"
+  | "expression_change"
+  | "dance"
+  | "sing"
+  | "laugh"
+  | "cry"
+  | "wave"
+  | "nod"
+  | "shake_head"
+  | "clap"
+  | "jump"
+  | "sit"
+  | "stand"
+  | "sleep"
+  | "wake_up"
+  | "custom_action"
+  | "no_response";
+
+// VTuber context for better AI understanding
+export interface VTuberContext {
+  currentActivity?: string; // "streaming", "gaming", "singing", "chatting", etc.
+  currentMood?: VTuberEmotion;
+  streamDuration?: number; // in minutes
+  viewerCount?: number;
+  chatActivity?: "high" | "medium" | "low";
+  recentEvents?: string[]; // last 5-10 events
+  timeOfDay?: "morning" | "afternoon" | "evening" | "night";
+  dayOfWeek?: string;
+  specialOccasion?: string; // "birthday", "holiday", "anniversary", etc.
+  language?: string;
+  culturalContext?: string;
+  userRelationship?: "new" | "regular" | "moderator" | "friend" | "unknown";
+}
 
 // Discord specific events
 export interface DiscordEvent extends BaseEvent {

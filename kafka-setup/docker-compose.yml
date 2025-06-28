@@ -39,12 +39,36 @@ services:
       test:
         [
           "CMD-SHELL",
-          "kafka-topics.sh --bootstrap-server localhost:9092 --list",
+          "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1",
         ]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
       start_period: 60s
+
+  # topic-creator:
+  #   image: apache/kafka:latest
+  #   container_name: kafka-topic-creator
+  #   depends_on:
+  #     broker:
+  #       condition: service_healthy
+  #   command: >
+  #     bash -c "
+  #       echo 'Waiting for Kafka broker to be ready...' &&
+  #       until /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker:9092 --list > /dev/null 2>&1; do
+  #         echo 'Kafka broker not ready yet, waiting...' &&
+  #         sleep 5
+  #       done &&
+  #       echo 'Kafka broker is ready!' &&
+  #       echo 'Creating topic webhooks_events_talita_tatania...' &&
+  #       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker:9092 --create --if-not-exists --topic webhooks_events_talita_tatania --partitions 3 --replication-factor 1 &&
+  #       echo 'Topic webhooks_events_talita_tatania created successfully!' &&
+  #       echo 'Listing all topics:' &&
+  #       /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker:9092 --list &&
+  #       echo 'Topic creation completed!'
+  #     "
+  #   networks:
+  #     - kafka_network
 
   redis:
     image: redis:7.2-alpine

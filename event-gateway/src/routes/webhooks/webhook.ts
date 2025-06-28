@@ -7,15 +7,33 @@ const redis = process.env.REDIS_URL
   ? new Redis(process.env.REDIS_URL)
   : new Redis();
 
-// Dummy logic: Menentukan prioritas event
-function determineImportance(
-  eventData: Record<string, unknown>
-): "high" | "low" {
-  // Contoh hardcoded: event payment atau urgent dianggap high
+// Enhanced logic: Menentukan prioritas dan event type
+function determineEventInfo(eventData: Record<string, unknown>): {
+  priority: "high" | "low" | "critical" | "normal";
+  type: string;
+} {
+  let priority: "high" | "low" | "critical" | "normal" = "normal";
+  let type = "webhook_event";
+
+  // Priority detection
   if (eventData.type === "payment" || eventData.urgent === true) {
-    return "high";
+    priority = "high";
+  } else if (eventData.emergency === true) {
+    priority = "critical";
   }
-  return "low";
+
+  // Event type detection
+  if (eventData.type === "payment") {
+    type = "payment";
+  } else if (eventData.type === "subscription") {
+    type = "subscription";
+    priority = "high";
+  } else if (eventData.type === "donation") {
+    type = "donation";
+    priority = "high";
+  }
+
+  return { priority, type };
 }
 
 // Dummy logic: Mengambil messageKey dari event
@@ -36,27 +54,26 @@ async function shouldSampleLowPriority(): Promise<boolean> {
 export const webhook = async (req: Request, res: Response): Promise<void> => {
   try {
     const eventData = req.body as Record<string, unknown>;
-    const priority = determineImportance(eventData);
+    const { priority, type } = determineEventInfo(eventData);
     const messageKey = getMessageKey(eventData);
 
-    if (priority === "high") {
-      await sendEventToKafka(
-        "webhook.events.high_priority",
-        messageKey,
-        eventData,
-        priority
-      );
+    // Enhanced event data with metadata
+    const enhancedEventData = {
+      id: `webhook_${Date.now()}`,
+      source: "webhook",
+      type,
+      ...eventData,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (priority === "high" || priority === "critical") {
+      await sendEventToKafka(messageKey, enhancedEventData, priority);
     } else {
       if (!(await shouldSampleLowPriority())) {
         res.status(200).json({ status: "sampled_out" });
         return;
       }
-      await sendEventToKafka(
-        "webhook.events.low_priority",
-        messageKey,
-        eventData,
-        priority
-      );
+      await sendEventToKafka(messageKey, enhancedEventData, priority);
     }
     res.status(200).json({ status: "ok" });
   } catch (error) {

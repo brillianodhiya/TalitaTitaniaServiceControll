@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
-import { ragService } from "../../../lib/rag-service";
 
 export async function GET() {
   try {
-    const isHealthy = await ragService.healthCheck();
+    // Forward health check to RAG service
+    const response = await fetch("http://localhost:3001/rag/health");
+    const data = await response.json();
 
     return NextResponse.json({
       service: "RAG",
-      status: isHealthy ? "healthy" : "unhealthy",
+      status: data.status || "unknown",
       timestamp: new Date().toISOString(),
-      endpoint: process.env.RAG_ENDPOINT || "simulated",
+      endpoint: process.env.RAG_ENDPOINT || "http://localhost:3001",
+      details: data,
     });
   } catch (error) {
     return NextResponse.json(
@@ -18,6 +20,7 @@ export async function GET() {
         status: "error",
         error: String(error),
         timestamp: new Date().toISOString(),
+        endpoint: process.env.RAG_ENDPOINT || "http://localhost:3001",
       },
       { status: 500 }
     );

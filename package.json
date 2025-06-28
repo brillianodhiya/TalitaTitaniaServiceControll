@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm-run-all --parallel next:dev bot:dev dev:worker",
-    "dev:worker": "tsx app/lib/worker.ts",
+    "dev": "npm-run-all --parallel next:dev bot:dev",
     "build": "next build",
     "start": "npm-run-all --parallel next:start bot:start",
     "lint": "next lint",
